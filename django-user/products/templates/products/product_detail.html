@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="product-detail">
+    <h1>{{ product.name }}</h1>
+    <p>{{ product.description }}</p>
+    <p>{{ product.price }}</p>
+    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+</div>
+<nav>
+    <a href="{% url 'login' %}">Login</a>
+    <a href="{% url 'register' %}">Register</a>
+    <a href="{% url 'profile' %}">Profile</a>
+</nav>
+{% endblock %}
