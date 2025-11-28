@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.title }} - Product Details</title>
+    <style>
+        :root { --bg: linear-gradient(135deg, #0f172a, #1e293b); --card: #0b1220; --accent: #22c55e; --text: #e2e8f0; --text-muted: #cbd5e1; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+        nav { background: rgba(0, 0, 0, 0.4); border-bottom: 1px solid rgba(255,255,255,0.08); padding: 1rem 2rem; display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; justify-content: space-between; }
+        nav .left { display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; }
+        nav a { color: var(--accent); text-decoration: none; font-weight: 500; transition: color 0.2s ease; padding: 0.5rem 0; border-bottom: 2px solid transparent; }
+        nav a:hover { color: #16a34a; border-bottom-color: #16a34a; }
+        nav .user-info { display: flex; align-items: center; gap: 1rem; margin-left: auto; }
+        nav .user-info span { color: var(--text-muted); font-size: 0.9rem; }
+        nav .btn-logout { background: #ef4444; color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.85rem; transition: background 0.2s ease; }
+        nav .btn-logout:hover { background: #dc2626; }
+        .container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+        .card { width: min(900px, 95%); background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 2.5rem; box-shadow: 0 10px 40px rgba(0,0,0,0.3); backdrop-filter: blur(6px); }
+        .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; }
+        .product-image-box { width: 100%; }
+        .product-image { width: 100%; height: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); }
+        h1 { font-size: 2.2rem; margin: 0 0 1rem; letter-spacing: 0.3px; }
+        .price { font-size: 2rem; color: var(--accent); font-weight: 600; margin: 0 0 1.5rem; }
+        .description { color: var(--text-muted); line-height: 1.8; margin: 0 0 2rem; font-size: 1.05rem; }
+        .actions { display: flex; gap: 1rem; margin-top: 2rem; }
+        .btn { padding: 0.75rem 1.5rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); background: #0b1220; color: var(--text); text-decoration: none; transition: all 0.2s ease; font-weight: 600; cursor: pointer; text-align: center; display: inline-block; }
+        .btn:hover { transform: translateY(-2px); border-color: var(--accent); color: var(--accent); }
+        .btn.primary { background: var(--accent); color: #0b1220; border-color: var(--accent); }
+        .btn.primary:hover { background: #16a34a; }
+        footer { margin-top: 2rem; opacity: 0.8; font-size: 0.9rem; }
+        @media (max-width: 768px) {
+            .product-grid { grid-template-columns: 1fr; }
+            .card { padding: 1.5rem; }
+            h1 { font-size: 1.6rem; }
+            .price { font-size: 1.5rem; }
+            nav { flex-direction: column; align-items: flex-start; }
+            nav .user-info { margin-left: 0; margin-top: 0.5rem; width: 100%; justify-content: space-between; }
+            .actions { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="left">
+            <a href="{% url 'index' %}">Home</a>
+            <a href="{% url 'products' %}">Products</a>
+        </div>
+        {% if user.is_authenticated %}
+            <div class="user-info">
+                <span>Welcome, <strong>{{ user.username }}</strong></span>
+                <a href="{% url 'profile' %}">Profile</a>
+                <a href="{% url 'logout' %}" class="btn-logout">Logout</a>
+            </div>
+        {% else %}
+            <div class="user-info">
+                <a href="{% url 'register' %}">Register</a>
+                <a href="{% url 'login' %}">Login</a>
+            </div>
+        {% endif %}
+    </nav>
+
+    {% load static %}
+    <div class="container">
+        <div class="card">
+            <div class="product-grid">
+                <div class="product-image-box">
+                    {% comment %} Hardcoded mapping for known products (Option B). Falls back to local_image/image {% endcomment %}
+                    {% if product.title == 'AirPods' %}
+                        <img src="{% static 'products/airpods.jpg' %}" alt="{{ product.title }}" class="product-image">
+                    {% elif product.title == 'iPhone 14' %}
+                        <img src="{% static 'products/iphone.jpg' %}" alt="{{ product.title }}" class="product-image">
+                    {% elif product.title == 'MacBook Pro' %}
+                        <img src="{% static 'products/macbook.jpg' %}" alt="{{ product.title }}" class="product-image">
+                    {% elif product.title == 'iPad Air' %}
+                        <img src="{% static 'products/ipad.jpg' %}" alt="{{ product.title }}" class="product-image">
+                    {% elif product.title == 'Apple Watch' %}
+                        <img src="{% static 'products/watch.jpg' %}" alt="{{ product.title }}" class="product-image">
+                    {% elif product.local_image %}
+                        <img src="{{ product.local_image }}" alt="{{ product.title }}" class="product-image">
+                    {% elif product.image %}
+                        <img src="{{ product.image }}" alt="{{ product.title }}" class="product-image">
+                    {% else %}
+                        <div class="product-image" style="display: flex; align-items: center; justify-content: center; font-size: 4rem; background: rgba(0,0,0,0.2);">📦</div>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <h1>{{ product.title }}</h1>
+                    <div class="price">{{ product.price }} ₸</div>
+                    
+                    <p class="description">{{ product.description }}</p>
+                    
+                    <div class="actions">
+                        <a href="{% url 'products' %}" class="btn">← Back to Products</a>
+                        <a href="#" class="btn primary">Add to Cart</a>
+                    </div>
+                </div>
+            </div>
+
+            <footer>Project: arman_website · App: arman · Product ID: {{ product.id }}</footer>
+        </div>
+    </div>
+</body>
+</html>

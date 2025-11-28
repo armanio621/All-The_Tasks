@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        :root { --bg: linear-gradient(135deg, #0f172a, #1e293b); --card: #0b1220; --accent: #22c55e; --text: #e2e8f0; --text-muted: #cbd5e1; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji"; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+        nav { background: rgba(0, 0, 0, 0.4); border-bottom: 1px solid rgba(255,255,255,0.08); padding: 1rem 2rem; display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; justify-content: space-between; }
+        nav .left { display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; }
+        nav a { color: var(--accent); text-decoration: none; font-weight: 500; transition: color 0.2s ease; padding: 0.5rem 0; border-bottom: 2px solid transparent; }
+        nav a:hover { color: #16a34a; border-bottom-color: #16a34a; }
+        nav .user-info { display: flex; align-items: center; gap: 1rem; margin-left: auto; }
+        nav .user-info span { color: var(--text-muted); font-size: 0.9rem; }
+        nav .btn-logout { background: #ef4444; color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.85rem; transition: background 0.2s ease; }
+        nav .btn-logout:hover { background: #dc2626; }
+        .container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+        .card { width: min(960px, 92%); background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 2.5rem; box-shadow: 0 10px 40px rgba(0,0,0,0.3); backdrop-filter: blur(6px); }
+        h1 { margin: 0 0 0.5rem; font-size: clamp(1.8rem, 4vw, 2.4rem); letter-spacing: 0.3px; }
+        p { margin: 0 0 1.25rem; line-height: 1.7; color: #cbd5e1; }
+        ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.75rem; }
+        li { background: #0b1220; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 0.75rem 1rem; display: flex; justify-content: space-between; align-items: center; }
+        .badge { font-size: 0.85rem; background: var(--accent); color: #0b1220; padding: 0.25rem 0.5rem; border-radius: 0.5rem; }
+        .actions { display: flex; gap: 0.75rem; margin-top: 1rem; }
+        .btn { padding: 0.6rem 0.9rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); background: #0b1220; color: var(--text); text-decoration: none; transition: transform 0.12s ease, background 0.2s ease, border-color 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+        .btn.primary { background: var(--accent); color: #0b1220; border-color: rgba(0,0,0,0.2); font-weight: 600; }
+        .btn:hover { transform: translateY(-1px); border-color: rgba(255,255,255,0.25); }
+        footer { margin-top: 1.25rem; opacity: 0.8; font-size: 0.9rem; }
+        @media (max-width: 600px) {
+            nav { flex-direction: column; align-items: flex-start; }
+            nav .user-info { margin-left: 0; margin-top: 0.5rem; width: 100%; justify-content: space-between; }
+            .container { padding: 1rem; }
+            .card { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="left">
+            <a href="{% url 'index' %}">Home</a>
+            <a href="{% url 'products' %}">Products</a>
+        </div>
+        {% if user.is_authenticated %}
+            <div class="user-info">
+                <span>Welcome, <strong>{{ user.username }}</strong></span>
+                <a href="{% url 'profile' %}">Profile</a>
+                <a href="{% url 'logout' %}" class="btn-logout">Logout</a>
+            </div>
+        {% else %}
+            <div class="user-info">
+                <a href="{% url 'register' %}">Register</a>
+                <a href="{% url 'login' %}">Login</a>
+            </div>
+        {% endif %}
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <h1>{{ title }}</h1>
+            <p>{{ welcome_text }}</p>
+
+            {% load static %}
+            {% if products %}
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+                    {% for product in products %}
+                        <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; overflow: hidden; padding: 1rem; display: flex; flex-direction: column;">
+                            {% comment %} Hardcoded image mapping for known products. Fallback to local_image/image if no match. {% endcomment %}
+                            {% if product.title == 'AirPods' %}
+                                <img src="{% static 'products/airpods.jpg' %}" alt="{{ product.title }}" style="width: 100%; height: 180px; object-fit: cover; border-radius: 8px; margin-bottom: 1rem;">
+                            {% elif product.title == 'iPhone 14' %}
+                                <img src="{% static 'products/iphone.jpg' %}" alt="{{ product.title }}" style="width: 100%; height: 180px; object-fit: cover; border-radius: 8px; margin-bottom: 1rem;">
+                            {% elif product.title == 'MacBook Pro' %}
+                                <img src="{% static 'products/macbook.jpg' %}" alt="{{ product.title }}" style="width: 100%; height: 180px; object-fit: cover; border-radius: 8px; margin-bottom: 1rem;">
+                            {% elif product.title == 'iPad Air' %}
+                                <img src="{% static 'products/ipad.jpg' %}" alt="{{ product.title }}" style="width: 100%; height: 180px; object-fit: cover; border-radius: 8px; margin-bottom: 1rem;">
+                            {% elif product.title == 'Apple Watch' %}
+                                <img src="{% static 'products/watch.jpg' %}" alt="{{ product.title }}" style="width: 100%; height: 180px; object-fit: cover; border-radius: 8px; margin-bottom: 1rem;">
+                            {% elif product.local_image %}
+                                <img src="{{ product.local_image }}" alt="{{ product.title }}" style="width: 100%; height: 180px; object-fit: cover; border-radius: 8px; margin-bottom: 1rem;">
+                            {% elif product.image %}
+                                <img src="{{ product.image }}" alt="{{ product.title }}" style="width: 100%; height: 180px; object-fit: cover; border-radius: 8px; margin-bottom: 1rem;">
+                            {% else %}
+                                <div style="width: 100%; height: 180px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; font-size: 2rem;">📦</div>
+                            {% endif %}
+                            
+                            <h3 style="margin: 0 0 0.5rem; font-size: 1.1rem;">{{ product.title }}</h3>
+                            <p style="margin: 0 0 1rem; color: #cbd5e1; font-size: 0.9rem; flex: 1; line-height: 1.5;">{{ product.description|truncatewords:15 }}</p>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <span class="badge" style="font-size: 1rem;">{{ product.price }} ₸</span>
+                            </div>
+                            <a href="{% url 'product_detail' product.id %}" class="btn primary" style="text-align: center;">View Details</a>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p style="text-align: center; color: #cbd5e1; margin-top: 2rem;">No products available</p>
+            {% endif %}
+
+            <div class="actions">
+                <a class="btn" href="{% url 'index' %}">Home</a>
+                <a class="btn primary" href="{% url 'products' %}">Refresh</a>
+            </div>
+
+            <footer>Project: arman_website · App: arman</footer>
+        </div>
+    </div>
+</body>
+</html>
